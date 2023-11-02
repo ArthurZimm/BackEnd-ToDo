@@ -1,8 +1,10 @@
+
 namespace ToDoApplication.Models;
 
 public class CardModel
 {
     public int Id { get; set; }
+    public int IdUsuario { get; set; }
     public string Nome { get; set; }
     public string Descricao { get; set; }
     public string DataInicio { get; set; }

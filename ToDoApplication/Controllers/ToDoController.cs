@@ -16,7 +16,7 @@ public class ToDoController : ControllerBase
     {
         _cardsService = cardsService;
     }
-    [HttpGet]
+    [HttpGet("GetCards")]
     public IActionResult GetCards()
     {
         if (_cardsService.VerificaListaCards(_cardsService.ListaCards()))
@@ -33,10 +33,18 @@ public class ToDoController : ControllerBase
     }
 
     [HttpPut]
-    public IActionResult AtualizaStatusCard([FromQuery]int id, int status)
+    public IActionResult AtualizaStatusCard([FromQuery]int id, int idUsuario,int status)
     {
-        if (_cardsService.AtualizaStatusCard(id, status))
+        if (_cardsService.AtualizaStatusCard(id, idUsuario, status))
             return Ok("Status do card atualizado com sucesso");
         return BadRequest("Ocorreu um erro ao atualizar o status do card");
+    }
+
+    [HttpDelete]
+    public IActionResult DeletaCard([FromQuery] int id)
+    {
+        if (_cardsService.DeletaCard(id))
+            return Ok("Card deletado com sucesso");
+        return BadRequest("Erro ao deletar o card solicitado");
     }
 }

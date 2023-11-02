@@ -30,6 +30,7 @@ public class CardsRepository
                             CardModel card = new CardModel
                             {
                                 Id = int.Parse(reader["id"].ToString()),
+                                IdUsuario = int.Parse(reader["id_usuario"].ToString()),
                                 Nome = reader["nome"].ToString(),
                                 Descricao = reader["descricao"].ToString(),
                                 DataInicio = reader["data_inicio"].ToString(),
@@ -54,8 +55,8 @@ public class CardsRepository
     public void InsereCard(CardModel card)
     {
         string connectString = _configuration.GetConnectionString("MySqlConnection");
-        string query = "Insert into tb_tarefa(nome, descricao, data_inicio, data_conclusao, prioridade, status_card) " +
-                       "values (@nome, @descricao, @data_inicio, @data_conclusao, @prioridade, @status_card)";
+        string query = "Insert into tb_tarefa(nome, descricao, data_inicio, data_conclusao, prioridade, status_card, id_usuario) " +
+                       "values (@nome, @descricao, @data_inicio, @data_conclusao, @prioridade, @status_card, @id_usuario)";
 
         using (MySqlConnection connection = new MySqlConnection(connectString))
         {
@@ -65,6 +66,7 @@ public class CardsRepository
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@nome", card.Nome);
+                    command.Parameters.AddWithValue("@id_usuario", card.IdUsuario);
                     command.Parameters.AddWithValue("@descricao", card.Descricao);
                     command.Parameters.AddWithValue("@data_inicio", card.DataInicio);
                     command.Parameters.AddWithValue("@data_conclusao", card.DataConclusao);
@@ -94,10 +96,10 @@ public class CardsRepository
         }
     }
 
-    public bool AtualizaStatusCard(int id, int status)
+    public bool AtualizaStatusCard(int id, int idUsuario,int status)
     {
         string connectString = _configuration.GetConnectionString("MySqlConnection");
-        string query = "Update tb_tarefa set status_card = @status_card where id = @id";
+        string query = "Update tb_tarefa set status_card = @status_card where id = @id and id_usuario = @id_usuario";
         try
         {
             using (MySqlConnection connection = new MySqlConnection(connectString))
@@ -106,6 +108,7 @@ public class CardsRepository
                 using (MySqlCommand command = new MySqlCommand(query,connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
+                    command.Parameters.AddWithValue("@id_usuario", idUsuario);
                     command.Parameters.AddWithValue("@status_card", status);
                     using (MySqlTransaction tr = connection.BeginTransaction())
                     {
@@ -137,5 +140,47 @@ public class CardsRepository
             return false;
         }
     }
-    
+
+    public bool DeletaCard(int id)
+    {
+        string connectString = _configuration.GetConnectionString("MySqlConnection");
+        string query = "Delete from tb_tarefa where id = @id";
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectString))
+            {
+                connection.Open();
+                using (MySqlCommand command = new MySqlCommand(query,connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+                    using (MySqlTransaction tr = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            command.Transaction = tr;
+                            int rowsAffected = command.ExecuteNonQuery();
+                            tr.Commit();
+                            if (rowsAffected > 0)
+                            {
+                                return true;
+                            }
+
+                            return false;
+                        }
+                        catch (MySqlException ex)
+                        {
+                            tr.Rollback();
+                            Console.WriteLine(ex);
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        catch (MySqlException e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+    }
 }

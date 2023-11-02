@@ -36,10 +36,20 @@ public class CardsService
         return false;
     }
 
-    public bool AtualizaStatusCard(int id, int status)
+    public bool AtualizaStatusCard(int id, int idUsuario, int status)
     {
-        if(_cardsRepository.AtualizaStatusCard(id,status))
+        if(_cardsRepository.AtualizaStatusCard(id,idUsuario, status))
             return true;
+        return false;
+    }
+
+    public bool DeletaCard(int id)
+    {
+        if (_cardsRepository.DeletaCard(id))
+        {
+            return true;
+        }
+
         return false;
     }
 }
